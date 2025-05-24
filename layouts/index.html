@@ -1,115 +1,170 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <title>JSON Copy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON copy</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
+        :root {
+            --primary-color: #4CAF50;
+            --hover-color: #45a049;
+            --code-bg: #f5f5f5;
+            --border-color: #e0e0e0;
         }
         
-        /* 复制按钮样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 90%;
+            margin: 20px auto;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* 代码容器 */
+        .code-container {
+            position: relative;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        /* JSON 显示区域 */
+        .json-display {
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: clamp(14px, 2.5vw, 15px); /* 响应式字体 */
+            line-height: 1.5;
+            color: #333;
+            white-space: pre;
+            -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+        }
+        
+        /* 复制按钮 */
         .copy-btn {
-            background: #4CAF50;
+            display: block;
+            width: 100%;
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
             cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 10px;
-            display: inline-block;
             transition: all 0.3s ease;
+            border-radius: 0 0 6px 6px;
         }
         .copy-btn:hover {
-            background: #45a049;
+            background: var(--hover-color);
         }
         .copy-btn.copied {
             background: #2196F3;
         }
         
-        /* JSON 显示区域 */
-        .json-display {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 4px;
-            overflow-x: auto;
-            font-family: "SF Mono", Menlo, monospace;
-            color: #333;
-            white-space: pre;
-            border: 1px solid #ddd;
+        /* iPad 横屏适配 */
+        @media only screen 
+          and (min-device-width: 768px) 
+          and (max-device-width: 1024px) {
+            body {
+                max-width: 80%;
+            }
+            .json-display {
+                font-size: 15px;
+            }
+        }
+        
+        /* 手机竖屏适配 */
+        @media (max-width: 767px) {
+            body {
+                max-width: 95%;
+                margin: 15px auto;
+            }
+            .code-container {
+                border-radius: 6px;
+            }
+            .copy-btn {
+                padding: 14px 0;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <button class="copy-btn" id="copyButton">
-        📋 复制脚本
-    </button>
-    <div class="json-display" id="json-content">
+    <div class="code-container">
+        <pre class="json-display" id="json-content">
 var objc = JSON.parse($response.body);
 objc = 
 {
-    "data": {
-        "processAppleReceipt": {
-            "__typename": "SubscriptionResult",
-            "error": 0,
-            "subscription": {
-                "__typename": "AppStoreSubscription",
-                "status": "canceled",
-                "originalPurchaseDate": "2023-04-19T03:11:16.000Z",
-                "originalTransactionId": "570001184068302",
-                "expirationDate": "9999-05-19T03:11:15.000Z",
-                "productId": "com.gingerlabs.Notability.premium_subscription",
-                "tier": "premium",
-                "refundedDate": null,
-                "refundedReason": null,
-                "isInBillingRetryPeriod": false,
-                "gracePeriodExpiresAt": null,
-                "expirationIntent": "CUSTOMER_CANCELLED",
-                "overDeviceLimit": false,
-                "user": null
-            },
-            "isClassic": false
-        }
-    }
+"data": {
+"processAppleReceipt": {
+"__typename": "SubscriptionResult",
+"error": 0,
+"subscription": {
+"__typename": "AppStoreSubscription",
+"status": "canceled",
+"originalPurchaseDate": "2023-04-19T03:11:16.000Z",
+"originalTransactionId": "570001184068302",
+"expirationDate": "9999-05-19T03:11:15.000Z",
+"productId": "com.gingerlabs.Notability.premium_subscription",
+"tier": "premium",
+"refundedDate": null,
+"refundedReason": null,
+"isInBillingRetryPeriod": false,
+"gracePeriodExpiresAt": null,
+"expirationIntent": "CUSTOMER_CANCELLED",
+"overDeviceLimit": false,
+"user": null
+},
+"isClassic": false
 }
-$done({body : JSON.stringify(objc)
-});
+}
+}
+$done({body : JSON.stringify(objc)});
+</pre>
+        <button class="copy-btn" id="copyButton">
+            复制脚本
+        </button>
     </div>
 
     <script>
         const copyButton = document.getElementById('copyButton');
         
-        async function copyJson() {
-            const jsonContent = document.getElementById("json-content").innerText;
+        async function copyToClipboard() {
+            const jsonContent = document.getElementById("json-content").textContent;
             
             try {
                 await navigator.clipboard.writeText(jsonContent);
                 
                 // 更新按钮状态
-                copyButton.innerHTML = '✅ 已复制';
+                copyButton.textContent = '✅ 复制成功';
                 copyButton.classList.add('copied');
                 
-                // 2秒后恢复原状
+                // 2秒后恢复
                 setTimeout(() => {
-                    copyButton.innerHTML = '📋 复制脚本';
+                    copyButton.textContent = '复制脚本';
                     copyButton.classList.remove('copied');
                 }, 2000);
                 
             } catch (err) {
-                copyButton.innerHTML = '❌ 复制失败';
+                copyButton.textContent = '❌ 复制失败';
                 setTimeout(() => {
-                    copyButton.innerHTML = '📋 复制脚本';
+                    copyButton.textContent = '复制脚本';
                 }, 2000);
                 console.error('复制失败:', err);
             }
         }
         
-        copyButton.addEventListener('click', copyJson);
+        // 兼容Safari的点击事件
+        copyButton.addEventListener('click', copyToClipboard);
+        copyButton.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            copyToClipboard();
+        });
     </script>
 </body>
 </html>
