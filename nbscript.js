@@ -7,7 +7,7 @@ objc =
             "error": 0,
             "subscription": {
                 "__typename": "AppStoreSubscription",
-                "status": "canceled",
+                "status": "active",
                 "originalPurchaseDate": "2023-04-19T03:11:16.000Z",
                 "originalTransactionId": "570001184068302",
                 "expirationDate": "9999-05-19T03:11:15.000Z",
